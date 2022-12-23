@@ -34,22 +34,18 @@ approved_programs = {
     'line': os.environ['LINE_PATH']
 }
 
-import subprocess
-
 def main(programs):
     while True:
         if check_internet_connectivity():
             logging.info("Welcome! Starting programs in 3 seconds...")
-            # Use subprocess.run() to run the 'sleep 3' command, which will pause the program for 3 seconds
-            subprocess.run('sleep 3')
+            time.sleep(3)
             for program_name, program_path in programs.items():
                 if program_name in approved_programs:
                     if not check_if_process_running(program_name):
                         try:
                             subprocess.Popen(program_path, start_new_session=True)
                             logging.info(f"Opening {program_name.capitalize()}")
-                            # Use subprocess.run() to run the 'sleep 5' command, which will pause the program for 5 seconds
-                            subprocess.run('sleep 5')
+                            time.sleep(5)
                         except FileNotFoundError:
                             flag = True
                             break
@@ -66,7 +62,6 @@ def main(programs):
         logging.warning("Reconnecting in 5 seconds...\nPress any key to reconnect...")
         msvcrt.getch()
         os.system('cls')
-
 
 if __name__ == '__main__':
     main(approved_programs)
