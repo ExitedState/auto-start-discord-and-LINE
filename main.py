@@ -43,7 +43,7 @@ def main(programs):
                 if program_name in approved_programs:
                     if not check_if_process_running(program_name):
                         try:
-                            subprocess.Popen(program_path, start_new_session=True)
+                            subprocess.run(program_path, start_new_session=True)
                             logging.info(f"Opening {program_name.capitalize()}")
                             time.sleep(5)
                         except FileNotFoundError:
