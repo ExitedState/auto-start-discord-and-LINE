@@ -36,6 +36,7 @@ approved_programs = {
 
 def main(programs):
     while True:
+        flag = False
         if check_internet_connectivity():
             logging.info("Welcome! Starting programs in 3 seconds...")
             time.sleep(3)
@@ -59,7 +60,7 @@ def main(programs):
             logging.warning("One or more programs could not be found. Please check your program paths and try again.\nPress any key to exit...")
             msvcrt.getch()
             break
-        logging.warning("Reconnecting in 5 seconds...\nPress any key to reconnect...")
+        logging.warning("Press any key to reconnect...")
         msvcrt.getch()
         os.system('cls')
 
