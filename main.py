@@ -18,9 +18,10 @@ def check_internet_connectivity(host="1.1.1.1", port=53, timeout=2):
         return False
 
 def check_if_process_running(process_name):
+    process_name = process_name.lower()
     for proc in psutil.process_iter():
         try:
-            if process_name.lower() in proc.name().lower():
+            if proc.name().lower() == process_name:
                 return True
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
