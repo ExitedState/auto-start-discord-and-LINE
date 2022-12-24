@@ -29,8 +29,6 @@ def check_internet_connectivity(timeout=2):
         logging.warning("No internet connectivity detected. Please connect to the internet and try again.")
     return False
 
-import psutil
-
 def check_if_process_running(process_name):
     for proc in psutil.process_iter():
         try:
