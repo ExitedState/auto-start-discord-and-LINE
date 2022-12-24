@@ -53,8 +53,6 @@ def main(programs):
                 else:
                     logging.warning(f"{program_name} is not an approved program and will not be launched.")
         if check_if_process_running("discord") and check_if_process_running('line'):
-            logging.info("All programs are running.\nPress any key to exit...")
-            msvcrt.getch()
             break
         if flag:
             logging.warning("One or more programs could not be found. Please check your program paths and try again.\nPress any key to exit...")
