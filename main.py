@@ -30,23 +30,16 @@ def check_internet_connectivity(timeout=2):
         logging.warning("No internet connectivity detected. Please connect to the internet and try again.")
     return False
 
-def check_if_process_running(process_name):
-    # Get the list of PIDs of the running processes
-    pids = psutil.pids()
-    # Iterate through the list of PIDs
-    for pid in pids:
-        # Check if the process with the specified PID is running
-        if psutil.pid_exists(pid):
-            try:
-                # Get the name of the process with the specified PID
-                name = psutil.Process(pid).name()
-                # Check if the process name matches the specified name
-                if process_name.lower() in name.lower():
-                    return True
-            except psutil.NoSuchProcess:
-                pass
-    return False
+import psutil
 
+def check_if_process_running(process_name):
+    for proc in psutil.process_iter():
+        try:
+            if process_name.lower() in proc.name().lower():
+                return True
+        except psutil.NoSuchProcess:
+            pass
+    return False
 
 
 os.environ['DISCORD_PATH'] = 'C:\\Users\\phaib\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe'
