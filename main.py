@@ -29,14 +29,30 @@ def check_internet_connectivity(timeout=2):
         logging.warning("No internet connectivity detected. Please connect to the internet and try again.")
     return False
 
+# Cache the list of processes in a global variable
+process_list = psutil.process_iter()
+
 def check_if_process_running(process_name):
-    for proc in psutil.process_iter():
+    global process_list
+    # Check if the cached process list is still valid
+    try:
+        next(process_list)
+    except StopIteration:
+        # Update the cached process list
+        process_list = psutil.process_iter()
+
+    # Iterate through the cached list of processes
+    for proc in process_list:
         try:
+            # Check if the process name matches the specified name
             if process_name.lower() in proc.name().lower():
-                return True
+                # Check if the process is running
+                if psutil.pid_exists(proc.pid):
+                    return True
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
     return False
+
 
 os.environ['DISCORD_PATH'] = 'C:\\Users\\phaib\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe'
 os.environ['LINE_PATH'] = 'C:\\Users\\phaib\\AppData\\Local\\LINE\\bin\\LineLauncher.exe'
