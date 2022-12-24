@@ -9,15 +9,6 @@ import requests
 
 logging.basicConfig(level=logging.INFO)
 
-# def check_internet_connectivity(host="1.1.1.1", port=53, timeout=2):
-#     try:
-#         socket.setdefaulttimeout(timeout)
-#         socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
-#         return True
-#     except socket.error:
-#         logging.warning("No internet connectivity detected. Please connect to the internet and try again.")
-#         return False
-
 def check_internet_connectivity(timeout=2):
         # Send a simple HTTP request to a web server
     try:
@@ -41,7 +32,6 @@ def check_internet_connectivity(timeout=2):
     logging.warning("No internet connectivity detected. Please connect to the internet and try again.")
     return False
 
-
 def check_if_process_running(process_name):
     for proc in psutil.process_iter():
         try:
@@ -51,6 +41,16 @@ def check_if_process_running(process_name):
             pass
     return False
 
+def launch_program(program_name, program_path):
+    if not check_if_process_running(program_name):
+        try:
+            subprocess.run(program_path, start_new_session=True)
+            logging.info(f"Opening {program_name.capitalize()}")
+            time.sleep(5)
+        except FileNotFoundError:
+            logging.warning(f"{program_name} could not be found. Please check your program path and try again.")
+            return False
+    return True
 
 os.environ['DISCORD_PATH'] = 'C:\\Users\\phaib\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe'
 os.environ['LINE_PATH'] = 'C:\\Users\\phaib\\AppData\\Local\\LINE\\bin\\LineLauncher.exe'
@@ -62,26 +62,17 @@ approved_programs = {
 
 def main(programs):
     while True:
-        flag = False
+        all_launched = True
         if check_internet_connectivity():
             time.sleep(3)
             for program_name, program_path in programs.items():
                 if program_name in approved_programs:
-                    if not check_if_process_running(program_name):
-                        try:
-                            subprocess.run(program_path, start_new_session=True)
-                            logging.info(f"Opening {program_name.capitalize()}")
-                            time.sleep(5)
-                        except FileNotFoundError:
-                            flag = True
-                            break
+                    if not launch_program(program_name, program_path):
+                        all_launched = False
+                        break
                 else:
                     logging.warning(f"{program_name} is not an approved program and will not be launched.")
-        if check_if_process_running("discord") and check_if_process_running('line'):
-            break
-        if flag:
-            logging.warning("One or more programs could not be found. Please check your program paths and try again.\nPress any key to exit...")
-            msvcrt.getch()
+        if all_launched and check_if_process_running("discord") and check_if_process_running('line'):
             break
         logging.warning("Press any key to reconnect...")
         msvcrt.getch()
