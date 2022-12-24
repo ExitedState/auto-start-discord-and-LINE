@@ -5,17 +5,29 @@ import psutil
 import logging
 import msvcrt
 import os
+import requests
 
 logging.basicConfig(level=logging.INFO)
 
-def check_internet_connectivity(host="1.1.1.1", port=53, timeout=2):
+# def check_internet_connectivity(host="1.1.1.1", port=53, timeout=2):
+#     try:
+#         socket.setdefaulttimeout(timeout)
+#         socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
+#         return True
+#     except socket.error:
+#         logging.warning("No internet connectivity detected. Please connect to the internet and try again.")
+#         return False
+
+def check_internet_connectivity(timeout=2):
     try:
-        socket.setdefaulttimeout(timeout)
-        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect((host, port))
-        return True
-    except socket.error:
+        # Send a simple HTTP request to a web server
+        response = requests.head("http://www.google.com", timeout=timeout)
+        if response.status_code == 200:
+            logging.info("Internet connectivity detected.")
+            return True
+    except requests.ConnectionError:
         logging.warning("No internet connectivity detected. Please connect to the internet and try again.")
-        return False
+    return False
 
 def check_if_process_running(process_name):
     for proc in psutil.process_iter():
@@ -38,7 +50,6 @@ def main(programs):
     while True:
         flag = False
         if check_internet_connectivity():
-            logging.info("Welcome! Starting programs in 3 seconds...")
             time.sleep(3)
             for program_name, program_path in programs.items():
                 if program_name in approved_programs:
