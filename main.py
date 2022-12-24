@@ -6,7 +6,6 @@ import logging
 import msvcrt
 import os
 import requests
-import timeit
 
 logging.basicConfig(level=logging.INFO)
 
@@ -79,7 +78,4 @@ def main(programs):
         os.system('cls')
 
 if __name__ == '__main__':
-    elapsed_time = timeit.repeat(lambda: check_if_process_running('discord'), repeat=20, number=1)
-    average_time = sum(elapsed_time) / len(elapsed_time)
-    print(f"Time taken by check_if_process_running(): {average_time:.6f} seconds")
     main(approved_programs)
