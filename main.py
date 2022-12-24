@@ -19,15 +19,28 @@ logging.basicConfig(level=logging.INFO)
 #         return False
 
 def check_internet_connectivity(timeout=2):
-    try:
         # Send a simple HTTP request to a web server
+    try:
         response = requests.head("http://www.google.com", timeout=timeout)
-        if response.status_code == 200:
-            logging.info("Internet connectivity detected.")
+        logging.info(f"HTTP response code: {response.status_code}")
+        if 200 <= response.status_code < 400:
+            logging.info("Internet connectivity detected via HTTP request.")
             return True
-    except requests.ConnectionError:
-        logging.warning("No internet connectivity detected. Please connect to the internet and try again.")
+    except (requests.ConnectionError, requests.Timeout, requests.HTTPError):
+        pass
+
+    # Check if we can ping a known stable server
+    try:
+        socket.setdefaulttimeout(timeout)
+        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect(("1.1.1.1", 53))
+        logging.info("fantastic Internet connectivity detected via ping. this is mean google lost server")
+        return True
+    except socket.error:
+        pass
+
+    logging.warning("No internet connectivity detected. Please connect to the internet and try again.")
     return False
+
 
 def check_if_process_running(process_name):
     for proc in psutil.process_iter():
