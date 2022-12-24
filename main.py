@@ -6,6 +6,7 @@ import logging
 import msvcrt
 import os
 import requests
+import timeit
 
 logging.basicConfig(level=logging.INFO)
 
@@ -29,29 +30,23 @@ def check_internet_connectivity(timeout=2):
         logging.warning("No internet connectivity detected. Please connect to the internet and try again.")
     return False
 
-# Cache the list of processes in a global variable
-process_list = psutil.process_iter()
-
 def check_if_process_running(process_name):
-    global process_list
-    # Check if the cached process list is still valid
-    try:
-        next(process_list)
-    except StopIteration:
-        # Update the cached process list
-        process_list = psutil.process_iter()
-
-    # Iterate through the cached list of processes
-    for proc in process_list:
-        try:
-            # Check if the process name matches the specified name
-            if process_name.lower() in proc.name().lower():
-                # Check if the process is running
-                if psutil.pid_exists(proc.pid):
+    # Get the list of PIDs of the running processes
+    pids = psutil.pids()
+    # Iterate through the list of PIDs
+    for pid in pids:
+        # Check if the process with the specified PID is running
+        if psutil.pid_exists(pid):
+            try:
+                # Get the name of the process with the specified PID
+                name = psutil.Process(pid).name()
+                # Check if the process name matches the specified name
+                if process_name.lower() in name.lower():
                     return True
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            pass
+            except psutil.NoSuchProcess:
+                pass
     return False
+
 
 
 os.environ['DISCORD_PATH'] = 'C:\\Users\\phaib\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe'
@@ -80,6 +75,7 @@ def main(programs):
                 else:
                     logging.warning(f"{program_name} is not an approved program and will not be launched.")
         if check_if_process_running("discord") and check_if_process_running('line'):
+            msvcrt.getch()
             break
         if flag:
             logging.warning("One or more programs could not be found. Please check your program paths and try again.\nPress any key to exit...")
@@ -90,4 +86,7 @@ def main(programs):
         os.system('cls')
 
 if __name__ == '__main__':
+    elapsed_time = timeit.repeat(lambda: check_if_process_running('discord'), repeat=20, number=1)
+    average_time = sum(elapsed_time) / len(elapsed_time)
+    print(f"Time taken by check_if_process_running(): {average_time:.6f} seconds")
     main(approved_programs)
